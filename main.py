@@ -1,5 +1,6 @@
 # Flask creates classes, or website object instances
 from flask import Flask, render_template
+import pandas as pd
 
 # Website object
 # __name__ is a special variable. returns "__{py file name}__" or
@@ -15,11 +16,13 @@ def home():
     return render_template("home.html")
 
 # Example of how to ad more pages
+# Use tags within this flask String to pass variables
 @app.route("/api/v1/<station>/<date>")
 def about(station, date):
-    #df = pd.read_csv("")
-    #temperature = df.station(date)
-    temperature = 23
+    # zfill() string method lets you add 0s to string
+    filename = "data_small/TG_STAID" + str(station).zfill(6) + ".txt"
+    df = pd.read_csv(filename, skiprows=20, parse_dates=['    DATE'])
+    temperature = df.loc[df['    DATE'] == date]['   TG'].squeeze() / 10
     #return render_template("about.html")
     return {"station": station,
             "date": date,
@@ -29,5 +32,6 @@ def about(station, date):
 # Only run flask app when main.py executed
 # Can import main in other py files so we only run certain
 # functions when certain pages are accessed
+# Can define specific ports if running multiple "apps"
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True, port=5001)
