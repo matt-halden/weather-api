@@ -6,14 +6,17 @@ import pandas as pd
 # __name__ is a special variable. returns "__{py file name}__" or
 # Other file name imported/referenced
 app = Flask(__name__)
+stations = pd.read_csv("data_small/stations.txt", skiprows=17)
+stations = stations[["STAID", "STANAME                                 "]]
 
 # Connect HTML elements to app. use function to render the HTML docs whenever someone
 # Accesses our {websiteurl}/home
 # Need to have a default "templates" folder, will automatically look for that
 # Throw images under a "static folder", make sure the path in HTML file is correct
+# can return data to home.html page by declaring variables in return (data=variable)
 @app.route("/")
 def home():
-    return render_template("home.html")
+    return render_template("home.html", data=stations.to_html())
 
 # Example of how to ad more pages
 # Use tags within this flask String to pass variables
@@ -21,6 +24,7 @@ def home():
 def about(station, date):
     # zfill() string method lets you add 0s to string
     filename = "data_small/TG_STAID" + str(station).zfill(6) + ".txt"
+    # data in txt files actual starts at row 21 hence skiprows
     df = pd.read_csv(filename, skiprows=20, parse_dates=['    DATE'])
     temperature = df.loc[df['    DATE'] == date]['   TG'].squeeze() / 10
     #return render_template("about.html")
